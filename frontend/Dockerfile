@@ -1,51 +1,34 @@
-# ─── Stage 1: Build ───────────────────────────────────────────────────────────
+# Stage 1: Build React Application
 FROM node:20-bookworm-slim AS builder
+
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --include=optional && \
-    npm cache clean --force
+RUN npm ci
 
 COPY . .
 
 ARG VITE_API_URL
-
 ENV VITE_API_URL=${VITE_API_URL}
 
 RUN npm run build
 
-# ─── Stage 2: Production Nginx ────────────────────────────────────────────────
-FROM nginx:1.27-alpine AS production
+# Stage 2: Serve with Nginx
+FROM nginx:1.27-alpine
 
-RUN apk update && apk upgrade --no-cache
-
-# Remove default config
+# Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy custom nginx config (listens on 8080 — no privileged port, no NET_BIND_SERVICE needed)
+# Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built assets
+# Copy production build
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Security: non-root nginx
-# Port 8080 does not require NET_BIND_SERVICE, so this runs on any cluster
-# with runAsNonRoot: true and a default seccomp profile.
-RUN addgroup -g 1001 -S nginx-app && \
-    adduser -u 1001 -S nginx-app -G nginx-app && \
-    chown -R nginx-app:nginx-app /usr/share/nginx/html && \
-    chown -R nginx-app:nginx-app /var/cache/nginx && \
-    chown -R nginx-app:nginx-app /var/log/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx-app:nginx-app /var/run/nginx.pid && \
-    sed -i '/^user /d' /etc/nginx/nginx.conf
-
-USER nginx-app
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget --spider -q http://127.0.0.1:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD wget --spider -q http://127.0.0.1:8080/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
