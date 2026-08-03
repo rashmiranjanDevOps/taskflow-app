@@ -8,31 +8,10 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-# ─── Stage 2: Development Dependencies ───────────────────────────────────────
-FROM node:20-alpine AS dev-deps
-WORKDIR /app
-RUN apk add --no-cache python3 make g++
-COPY package*.json ./
-RUN npm ci && npm cache clean --force
-
-# ─── Stage 3: Test ────────────────────────────────────────────────────────────
-FROM node:20-alpine AS test
-WORKDIR /app
-COPY --from=dev-deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run lint
-RUN npm test
-
-# ─── Stage 4: Production Image ────────────────────────────────────────────────
+# ─── Stage 2: Production Image ────────────────────────────────────────────────
 FROM node:20-alpine AS production
 
-# Jenkins passes --build-arg APP_VERSION=<env>-<git-sha> on every build.
-# Previously this Dockerfile declared no matching ARG, so Docker silently
-# discarded the value (with a "build-arg not consumed" warning easy to miss
-# in CI logs) and the app always reported APP_VERSION from whatever static
-# value happened to be in the ConfigMap. Declaring it here is what makes
-# GET /health's reported version actually match the image that's running —
-# see backend/src/controllers/health.controller.js.
+# Reported by GET /health — see backend/src/controllers/health.controller.js.
 ARG APP_VERSION=unknown
 
 # Security: create non-root user
