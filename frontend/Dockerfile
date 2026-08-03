@@ -10,12 +10,8 @@ RUN npm ci --include=optional && \
 COPY . .
 
 ARG VITE_API_URL
-ARG VITE_APP_NAME=TaskFlow
-ARG VITE_APP_ENV=production
 
-ENV VITE_API_URL=${VITE_API_URL} \
-    VITE_APP_NAME=${VITE_APP_NAME} \
-    VITE_APP_ENV=${VITE_APP_ENV}
+ENV VITE_API_URL=${VITE_API_URL}
 
 RUN npm run build
 
@@ -48,9 +44,6 @@ RUN addgroup -g 1001 -S nginx-app && \
 USER nginx-app
 
 EXPOSE 8080
-
-# HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-#   CMD wget --spider -q http://localhost:8080/ || exit 1
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --spider -q http://127.0.0.1:8080/health || exit 1
