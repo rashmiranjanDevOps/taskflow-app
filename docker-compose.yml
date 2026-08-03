@@ -75,7 +75,6 @@ services:
       target: production
       args:
         VITE_API_URL: http://localhost:5000
-        VITE_APP_ENV: development
     container_name: employee-task-frontend
     restart: unless-stopped
     ports:
