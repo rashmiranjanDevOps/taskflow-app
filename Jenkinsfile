@@ -27,5 +27,25 @@ pipeline {
                 }
             }
         }
+
+        stage('Validation') {
+            steps {
+                dir('frontend') {
+                    sh 'test -d dist'
+                    sh 'test -f dist/index.html'
+                    echo 'Validation passed: frontend build artifacts exist.'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully: Checkout → Build → Test → Validation'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check the Console Output to identify the issue.'
+        }
     }
 }
