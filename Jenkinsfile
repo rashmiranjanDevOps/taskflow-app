@@ -32,8 +32,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'test -d dist'
-                    // sh 'test -f dist/index.html'
-                    sh 'test -f dist/nonexistent.html'
+                    sh 'test -f dist/index.html'
                     echo 'Validation passed: frontend build artifacts exist.'
                 }
             }
