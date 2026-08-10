@@ -1,2 +1,16 @@
 .env
 .env.development
+
+# Node.js dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example

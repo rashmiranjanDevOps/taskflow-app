@@ -4,18 +4,23 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/__tests__/setup.js'],
+    setupFiles: ['./src/tests/setup.js'],
+
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['src/**/*.{js,jsx}'],
-      exclude: ['src/__tests__/**', 'src/main.jsx'],
+      exclude: ['src/tests/**', 'src/main.jsx'],
     },
   },
+
   resolve: {
-    alias: { '@': path.resolve(__dirname, './src') },
+    alias: {
+      '@': path.resolve(process.cwd(), './src'),
+    },
   },
 });
