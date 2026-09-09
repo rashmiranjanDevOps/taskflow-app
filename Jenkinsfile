@@ -60,18 +60,19 @@ pipeline {
             steps {
                 sh '''
                     docker build \
-                    -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-                    ./frontend
+            --build-arg VITE_API_URL=http://54.91.126.249:5000 \
+            -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+            ./frontend
 
-                    docker build \
-                    -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
-                    ./backend
+            docker build \
+            -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+            ./backend
 
-                    docker tag ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-                    ${FRONTEND_IMAGE}:latest
+            docker tag ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+            ${FRONTEND_IMAGE}:latest
 
-                    docker tag ${BACKEND_IMAGE}:${IMAGE_TAG} \
-                    ${BACKEND_IMAGE}:latest
+            docker tag ${BACKEND_IMAGE}:${IMAGE_TAG} \
+            ${BACKEND_IMAGE}:latest
                 '''
             }
         }
