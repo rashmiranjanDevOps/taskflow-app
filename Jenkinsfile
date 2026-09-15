@@ -1,10 +1,9 @@
-```groovy
 pipeline {
     agent any
 
     environment {
-        FRONTEND_IMAGE = 'rashmiranjandevops/taskflow-frontend'
-        BACKEND_IMAGE  = 'rashmiranjandevops/taskflow-backend'
+        FRONTEND_IMAGE = 'rashmiranjandevOps/taskflow-frontend'
+        BACKEND_IMAGE  = 'rashmiranjandevOps/taskflow-backend'
         IMAGE_TAG      = "${BUILD_NUMBER}"
     }
 
@@ -178,4 +177,3 @@ pipeline {
         }
     }
 }
-```
