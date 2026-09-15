@@ -60,19 +60,43 @@ pipeline {
             steps {
                 sh '''
                     docker build \
-            --build-arg VITE_API_URL=http://54.91.126.249:5000 \
-            -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-            ./frontend
+                        --build-arg VITE_API_URL=http://18.60.58.93:5000 \
+                        -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        ./frontend
 
-            docker build \
-            -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
-            ./backend
+                    docker build \
+                        -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        ./backend
 
-            docker tag ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-            ${FRONTEND_IMAGE}:latest
+                    docker tag ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        ${FRONTEND_IMAGE}:latest
 
-            docker tag ${BACKEND_IMAGE}:${IMAGE_TAG} \
-            ${BACKEND_IMAGE}:latest
+                    docker tag ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        ${BACKEND_IMAGE}:latest
+                '''
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                sh '''
+                    echo "========================================"
+                    echo "Scanning Frontend Docker Image"
+                    echo "========================================"
+
+                    trivy image \
+                        --scanners vuln,misconfig \
+                        --format table \
+                        ${FRONTEND_IMAGE}:${IMAGE_TAG}
+
+                    echo "========================================"
+                    echo "Scanning Backend Docker Image"
+                    echo "========================================"
+
+                    trivy image \
+                        --scanners vuln,misconfig \
+                        --format table \
+                        ${BACKEND_IMAGE}:${IMAGE_TAG}
                 '''
             }
         }
@@ -88,8 +112,8 @@ pipeline {
                 ]) {
                     sh '''
                         echo "$DOCKERHUB_TOKEN" | docker login \
-                        -u "$DOCKERHUB_USER" \
-                        --password-stdin
+                            -u "$DOCKERHUB_USER" \
+                            --password-stdin
 
                         docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
                         docker push ${FRONTEND_IMAGE}:latest
@@ -104,7 +128,7 @@ pipeline {
 
     post {
         success {
-            echo 'TaskFlow CI/CD pipeline completed successfully.'
+            echo 'TaskFlow DevSecOps CI/CD pipeline completed successfully.'
         }
 
         failure {
