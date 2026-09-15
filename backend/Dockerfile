@@ -1,12 +1,14 @@
 # ==========================================
-# Stage 1: Install Dependencies
+# Stage 1: Install Production Dependencies
 # ==========================================
 FROM node:20-alpine AS deps
 
 WORKDIR /app
 
+# Copy package files first for Docker layer caching
 COPY package*.json ./
 
+# Install production dependencies only
 RUN npm ci --omit=dev
 
 
@@ -20,11 +22,11 @@ WORKDIR /app
 # Upgrade Alpine packages to latest security-fixed versions
 RUN apk update && apk upgrade
 
-# Create non-root user
+# Create non-root user and group
 RUN addgroup -S appgroup && \
     adduser -S appuser -G appgroup
 
-# Install dumb-init and curl
+# Install required runtime utilities
 RUN apk add --no-cache dumb-init curl
 
 # Copy production dependencies
@@ -32,6 +34,8 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Copy application source
 COPY src ./src
+
+# Copy package metadata
 COPY package*.json ./
 
 # Environment variables
@@ -42,7 +46,7 @@ ENV NODE_ENV=production \
 # Run application as non-root user
 USER appuser
 
-# Expose application port
+# Application port
 EXPOSE 5000
 
 # Container health check
