@@ -22,6 +22,16 @@ WORKDIR /app
 # Upgrade Alpine packages to latest security-fixed versions
 RUN apk update && apk upgrade
 
+# Remove unused package managers from production runtime
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/lib/node_modules/corepack \
+           /opt/yarn-v1.22.22 \
+    && rm -f /usr/local/bin/npm \
+              /usr/local/bin/npx \
+              /usr/local/bin/corepack \
+              /usr/local/bin/yarn \
+              /usr/local/bin/yarnpkg
+
 # Create non-root user and group
 RUN addgroup -S appgroup && \
     adduser -S appuser -G appgroup
