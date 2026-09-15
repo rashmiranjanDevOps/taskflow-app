@@ -5,6 +5,7 @@ pipeline {
         FRONTEND_IMAGE = 'rashmiranjandevops/taskflow-frontend'
         BACKEND_IMAGE  = 'rashmiranjandevops/taskflow-backend'
         IMAGE_TAG      = "${BUILD_NUMBER}"
+        VITE_API_URL = 'http://18.60.58.93:5000'
     }
 
     stages {
@@ -60,11 +61,12 @@ pipeline {
             steps {
                 sh '''
                     docker build \
-                        --build-arg VITE_API_URL=http://18.60.58.93:5000 \
+                        --build-arg VITE_API_URL=${VITE_API_URL} \
                         -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
                         ./frontend
 
                     docker build \
+                        --build-arg VITE_API_URL=${VITE_API_URL} \
                         -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
                         ./backend
 
