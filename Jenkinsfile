@@ -86,6 +86,8 @@ pipeline {
 
                     trivy image \
                         --scanners vuln,misconfig \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
                         --format table \
                         ${FRONTEND_IMAGE}:${IMAGE_TAG}
 
@@ -95,6 +97,8 @@ pipeline {
 
                     trivy image \
                         --scanners vuln,misconfig \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
                         --format table \
                         ${BACKEND_IMAGE}:${IMAGE_TAG}
                 '''
