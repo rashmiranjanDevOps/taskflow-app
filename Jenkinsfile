@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -80,8 +81,41 @@ pipeline {
         stage('Security Scan') {
             steps {
                 sh '''
+                    mkdir -p security-reports
+
                     echo "========================================"
                     echo "Scanning Frontend Docker Image"
+                    echo "========================================"
+
+                    trivy image \
+                        --scanners vuln,misconfig \
+                        --severity HIGH,CRITICAL \
+                        --format table \
+                        ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        | tee security-reports/frontend-trivy.txt
+
+                    echo "========================================"
+                    echo "Scanning Backend Docker Image"
+                    echo "========================================"
+
+                    trivy image \
+                        --scanners vuln,misconfig \
+                        --severity HIGH,CRITICAL \
+                        --format table \
+                        ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        | tee security-reports/backend-trivy.txt
+
+                    echo "========================================"
+                    echo "Security Scan Reports Generated"
+                    echo "========================================"
+                '''
+
+                archiveArtifacts artifacts: 'security-reports/*.txt',
+                                 fingerprint: true
+
+                sh '''
+                    echo "========================================"
+                    echo "Security Gate - Frontend"
                     echo "========================================"
 
                     trivy image \
@@ -92,7 +126,7 @@ pipeline {
                         ${FRONTEND_IMAGE}:${IMAGE_TAG}
 
                     echo "========================================"
-                    echo "Scanning Backend Docker Image"
+                    echo "Security Gate - Backend"
                     echo "========================================"
 
                     trivy image \
@@ -144,3 +178,4 @@ pipeline {
         }
     }
 }
+```
