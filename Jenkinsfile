@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        FRONTEND_IMAGE = 'rashmiranjandevOps/taskflow-frontend'
-        BACKEND_IMAGE  = 'rashmiranjandevOps/taskflow-backend'
+        FRONTEND_IMAGE = 'rashmiranjandevops/taskflow-frontend'
+        BACKEND_IMAGE  = 'rashmiranjandevops/taskflow-backend'
         IMAGE_TAG      = "${BUILD_NUMBER}"
     }
 
